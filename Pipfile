@@ -11,6 +11,9 @@ python-dotenv = "*"
 pydantic-settings = "*"
 asyncpg = "*"
 psycopg2-binary = "*"
+dune-client = "*"
+streamlit = "*"
+plotly = "==5.24.1"
 
 [dev-packages]
 

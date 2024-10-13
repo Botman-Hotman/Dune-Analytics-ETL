@@ -19,5 +19,12 @@ class Settings(BaseSettings):
     staging_schema: str = str(os.environ.get('staging_schema'))
     dw_schema: str = str(os.environ.get('dw_schema'))
 
-settings = Settings()
 
+class CryptoAPIs(BaseSettings):
+    coingecko_api_key: str = str(os.environ.get('coingecko_api_key'))
+    dune_analytics_key: str = str(os.environ.get('dune_analytics_key'))
+    dune_analytics_url: str = str(os.environ.get('dune_analytics_url'))
+
+
+settings = Settings()
+cyrpto_api_settings = CryptoAPIs()

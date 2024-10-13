@@ -38,7 +38,7 @@ def map_dtype_to_postgres(dtype) -> str:
     :return:
     """
     if pd.api.types.is_integer_dtype(dtype):
-        return 'INT'
+        return 'BIGINT'
     elif pd.api.types.is_float_dtype(dtype):
         return 'FLOAT'
     elif pd.api.types.is_bool_dtype(dtype):
