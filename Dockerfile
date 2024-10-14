@@ -1,4 +1,4 @@
-FROM python:3.11.5
+FROM python:3.11.5-slim
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -21,8 +21,3 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 
 # Switch to the non-root user
 USER appuser
-
-# will init the database
-CMD ["python main.py"]
-
-CMD []

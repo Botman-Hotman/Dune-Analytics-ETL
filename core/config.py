@@ -30,6 +30,9 @@ class CryptoAPIs(BaseSettings):
     coingecko_api_url: str = str(os.environ.get('coingecko_api_url'))
     dune_analytics_key: str = str(os.environ.get('dune_analytics_key'))
     dune_analytics_url: str = str(os.environ.get('dune_analytics_url'))
+    dune_analytics_init_query_id: int = int(os.environ.get('dune_analytics_init_query_id'))
+    dune_analytics_update_query_id: int = int(os.environ.get('dune_analytics_update_query_id'))
+
 
 
 settings = Settings()

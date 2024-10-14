@@ -3,7 +3,22 @@
 
 ## Introduction
 ___
-The project is split into the following sections:
+This project is designed to be a self-contained ETL system, it utilises the following services to extract, transform, save, and monitor all pipeline jobs:
+* Postgres - database
+* Celery - an asynchronous task runner and scheduler 
+* Flower - a UI to monitor the celery jobs and outputs
+* RedisCache - in memory event broker and cache to support celery and flower
+* Streamlit - A dash-boarding framework
+* Dune Analytics client - an sdk to interface with a on-chain postgres database to ETL the various data
+* Coin Gecko - a crypto data aggregator
+* Docker - microservice orchestration and containerisation
+
+The system initialises with the current months data pulled from Dune and Coin Gecko, it will pull WETH-USDC from dune and ethereum and usdc price data from coingecko 
+and insert it into the staging section of the database. After this has completed, all views and aggregations are created within the database. 
+The celery worker has all cronjobs scheduled for 9AM UTC will sit with a 'beat' waiting for the time. 
+
+* The status/outcome of the jobs can be seen through Flower, located @ http://0.0.0.0:5555/
+* A streamlit dashboard, to present the findings, can be found @ http://localhost:8501/
 
 
 ## Project layout
@@ -13,7 +28,7 @@ ___
 * **db.py** - singleton patterns for database engines and sessions sync / async
 * **utils.py** - various tools to help with generating datetime's, id's and database schemas/objects dynamically
 * **dune_analytics.py** - singleton pattern for dune client
-* **coingecko.py** - various functions to authenticate and fetch target data
+* **coingecko.py** - a wrapper around the api with various functions to authenticate and fetch target data
 
 #### Models
 * This contains the ORM models of the database, using the Base declaration found in core/db to init the general schema and relationships. If we needed to create complex relations/schemas we could define them here making them version control friendly and migratable.
@@ -110,10 +125,14 @@ and sell_token = {{target_sell_token}}
 and block_date = current_date - interval '1' DAY
 `
 
-I think the code for both functions would need to be update in servies/import_dune_data_to_staging.py to the following to make use of the query management better:
+I think the code for both functions would need to be updated in services/import_dune_data_to_staging.py to the following 
+to make use of the query management and parameters. The functions would need the arguments added to them. 
 
 ```
 from dune_client.query import QueryBase, QueryParameter
+
+target_buy_token: str = 'WETH'
+target_sell_token: str = 'USDC'
 
 target_query = QueryBase(
     query_id=query_id,
@@ -123,8 +142,51 @@ target_query = QueryBase(
     ]
 )
 
-query_result: pd.DataFrame = dune.run_query_dataframe(target_query)
+# old code
+# query_result: pd.DataFrame = dune.get_latest_result_dataframe(query_id)
+
+# This would actually send the query with a callback every 30 seconds to check the status of the query
+query_result: pd.DataFrame = dune.run_query_dataframe(target_query, ping_frequency=30)
 ```
 
 ## Docker
 ___
+To start all the required services enter the root of the directory and enter the following. 
+
+It will kick off the following microservices: 
+* postgres server 
+* redis server
+* a celery worker/beat, 
+* flower instance as a UI for the celery worker
+* streamlit dashboard 
+
+
+`docker-compose up`
+
+with the command above you should see the following happen
+![Alt text](img/docker-compose.png?raw=true "dune api button")
+![Alt text](img/docker up.png?raw=true "dune api button")
+![Alt text](img/docker output.png?raw=true "dune api button")
+
+
+## Postgres
+___
+
+If all has ran successfully you should see a staging area with our two target systems data tables that builds the foundation of the analysis. 
+Each table generates a primary key ID column of type UUID, which is created by stringifying all items in a row and then taking a hash of that string 
+and turning it into a UUID. Helps combat duplicates. The is also the data warehouse schema where I have created views that are used in the streamlit dashboard. 
+
+![Alt text](img/postgres ready.png?raw=true "dune api button")
+
+
+# Final Thoughts
+___
+**Source data** - I think more time should be spent with Dune, aggregations, transformation and filtering at the source will speed up the whole pipeline. 
+Also, exploring the option of using more that one data aggregator to distribute the average across the market. As well as exploring more data sources within dune itself.
+
+**Version Control Queries (Dune)** - Creating a pipeline that creates all required queries to dune as well as storing the query_id's and metadata in a local postgres database for 
+easier deployment into the pipeline. 
+
+**Scaling/Cloud** - This services could be deployed into kubernetes for maximum scalability with a cloud sql database should we need more compute.  
+
+**Analytics API** - Could create a fast API to serve the results for custom dashboarding or feeds into other systems. As well as manually triggering jobs by hitting target endpoints. 

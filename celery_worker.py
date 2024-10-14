@@ -23,12 +23,12 @@ celery_app.conf.beat_schedule = {
 
     , "update-coingecko-data-ethereum-task": {
         "task":  'services.import_coingecko_to_staging.update_coingecko_prices',
-        "schedule": crontab(hour=19, minute=30),
+        "schedule": crontab(hour=9, minute=0),
         "args": ('ethereum', (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'))
     }
     , "update-coingecko-data-usdc-task": {
         "task":  'services.import_coingecko_to_staging.update_coingecko_prices',
-        "schedule": crontab(hour=19, minute=30),
+        "schedule": crontab(hour=9, minute=0),
         "args": ('usd-coin', (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'))
     }
 }

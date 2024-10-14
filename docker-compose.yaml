@@ -1,12 +1,25 @@
 version: '3.8'
 services:
+  init:
+    container_name: init
+    build: .
+    command: python main.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - TestNetwork
+
   dash:
     container_name: dash
     build: .
     command: streamlit run --client.showSidebarNavigation=False app.py
+    restart: always
     ports:
       - "8501:8501"
-    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - TestNetwork
 
