@@ -1,5 +1,15 @@
 version: '3.8'
 services:
+  dash:
+    container_name: dash
+    build: .
+    command: streamlit run --client.showSidebarNavigation=False app.py
+    ports:
+      - "8501:8501"
+    restart: always
+    networks:
+      - TestNetwork
+
   postgres:
     image: postgres:15-alpine
     container_name: psg01
@@ -18,6 +28,56 @@ services:
       retries: 3
     networks:
       - TestNetwork
+
+  redis:
+    image: redis
+    container_name: rd01
+    ports:
+      - "6379:6379"
+    volumes:
+      - shared-data:/app
+    networks:
+      - TestNetwork
+
+  celery_worker:
+      container_name: celery_worker
+      build: .
+      command: celery -A celery_worker worker --loglevel=info --pool=solo
+      volumes:
+        - shared-data:/api
+      depends_on:
+        - redis
+      networks:
+        - TestNetwork
+
+  celery_beat:
+    container_name: celery_beat
+    build: .
+    command: celery -A celery_worker beat --loglevel=info
+    volumes:
+      - shared-data:/api
+    depends_on:
+      - redis
+      - celery_worker
+    networks:
+      - TestNetwork
+
+  flower:
+      container_name: flower
+      build: .
+      command: celery --broker=redis://rd01:6379/0 -A celery_worker flower --port=5555 --task-args --inspect --task-events
+      volumes:
+        - shared-data:/app
+      ports:
+        - "5555:5555"
+      expose:
+        - "5555"
+      depends_on:
+        - redis
+        - celery_worker
+        - celery_beat
+      networks:
+        - TestNetwork
 
 networks:
     TestNetwork:

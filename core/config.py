@@ -20,11 +20,18 @@ class Settings(BaseSettings):
     dw_schema: str = str(os.environ.get('dw_schema'))
 
 
+class CelerySettings(BaseSettings):
+    celery_app_name: str = str(os.environ.get('app_name'))
+    celery_broker: str = str(os.environ.get('celery_broker'))
+    celery_backend: str = str(os.environ.get('celery_backend'))
+
 class CryptoAPIs(BaseSettings):
     coingecko_api_key: str = str(os.environ.get('coingecko_api_key'))
+    coingecko_api_url: str = str(os.environ.get('coingecko_api_url'))
     dune_analytics_key: str = str(os.environ.get('dune_analytics_key'))
     dune_analytics_url: str = str(os.environ.get('dune_analytics_url'))
 
 
 settings = Settings()
 cyrpto_api_settings = CryptoAPIs()
+celery_settings = CelerySettings()

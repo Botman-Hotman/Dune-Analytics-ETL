@@ -1,0 +1,2 @@
+from .import_coingecko_to_staging import init_coingecko_prices
+from .import_dune_data_to_staging import init_dune_data
