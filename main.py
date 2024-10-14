@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from core.db import async_session_factory, drop_all_schema, create_all_schema, settings
 from core.utils import SchemaInit, populate_dimensions_on_startup
 from services import init_coingecko_prices, init_dune_data
-from services.create_view import create_views
+from services.create_view import create_cow_price_improvement_view
 
 logging.basicConfig(
     format='%(asctime)s : %(name)s :  %(levelname)s : %(funcName)s :  %(message)s'
@@ -54,7 +54,7 @@ async def init_database(start_date: str):
         await init_coingecko_prices('ethereum', start_date)
         await init_coingecko_prices('usd-coin', start_date)
         await init_dune_data()
-        create_views()
+        create_cow_price_improvement_view()
         logging.info('Initialisation complete.')
 
 if __name__ == "__main__":
