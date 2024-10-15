@@ -74,10 +74,8 @@ Be sure to insert your own dune analytics and coingecko api key.
 * staging_schema = 'staging' 
 * dw_schema = 'data_warehouse' 
 * app_name='CowSwapTest'
-
 * coingecko_api_key = '' 
 * coingecko_api_url = 'https://api.coingecko.com/api/v3'
-
 * dune_analytics_key = '' 
 * dune_analytics_url = "https://api.dune.com"
 * dune_analytics_init_query_id = 4158553
