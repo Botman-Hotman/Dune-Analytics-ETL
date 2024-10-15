@@ -139,7 +139,9 @@ It will kick off the following microservices:
 
 with the command above you should see the following happen
 ![Alt text](img/docker-compose.png?raw=true "dune api button")
+
 ![Alt text](img/docker up.png?raw=true "dune api button")
+
 ![Alt text](img/docker output.png?raw=true "dune api button")
 
 
