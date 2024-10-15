@@ -39,6 +39,8 @@ services:
       test: ["CMD", "pg_isready", "-h", "postgres", "-p", "5432", "-U", "dev-user", "-d", "dev_db"]
       interval: 10s
       retries: 3
+    volumes:
+      - shared-data:/var/lib/postgresql/data
     networks:
       - TestNetwork
 
@@ -56,8 +58,6 @@ services:
       container_name: celery_worker
       build: .
       command: celery -A celery_worker worker --loglevel=info --pool=solo
-      volumes:
-        - shared-data:/api
       depends_on:
         - redis
       networks:
@@ -67,8 +67,6 @@ services:
     container_name: celery_beat
     build: .
     command: celery -A celery_worker beat --loglevel=info
-    volumes:
-      - shared-data:/api
     depends_on:
       - redis
       - celery_worker
@@ -79,8 +77,6 @@ services:
       container_name: flower
       build: .
       command: celery --broker=redis://rd01:6379/0 -A celery_worker flower --port=5555 --task-args --inspect --task-events
-      volumes:
-        - shared-data:/app
       ports:
         - "5555:5555"
       expose:

@@ -32,7 +32,7 @@ async def init_coingecko_prices(target_coin: str, target_start_date: str, table_
             df['coin'] = target_coin
 
             if df.shape[0] > 0:
-                logging.info(f"inserting {df.shape[0]} rows into {table_name} staging")
+                logging.info(f"inserting {target_coin} {df.shape[0]} rows into {table_name} staging")
                 await df_to_postgres_schema(df, table_name)  # create staging schema from existing data
                 time.sleep(1)
                 df_to_abstract_orm(df, table_name)
@@ -53,7 +53,9 @@ async def init_coingecko_prices(target_coin: str, target_start_date: str, table_
 
 
 @celery_app.task()
-def update_coingecko_prices(target_coin: str, target_date: str, table_name: str = 'coingecko_coin_data') -> None:
+def update_coingecko_prices(target_coin: str,
+                            target_date: str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
+                            table_name: str = 'coingecko_coin_data') -> None:
     if authentication():
         time.sleep(1)
 
@@ -69,6 +71,7 @@ def update_coingecko_prices(target_coin: str, target_date: str, table_name: str 
             df['coin'] = target_coin
 
             if df.shape[0] > 0:
+                logging.info(f"updating {target_coin} {df.shape[0]} rows into {table_name} staging")
                 df_to_abstract_orm(df, table_name)
 
             else:
